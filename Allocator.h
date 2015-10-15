@@ -21,7 +21,8 @@
 // ---------
 
 template <typename T, std::size_t N>
-class Allocator {
+class Allocator
+{
     public:
         // --------
         // typedefs
@@ -43,15 +44,19 @@ class Allocator {
         // operator ==
         // -----------
 
-        friend bool operator == (const Allocator&, const Allocator&) {
-            return true;}                                              // this is correct
+        friend bool operator == (const Allocator&, const Allocator&)
+        {
+            return true; // this is correct
+        }
 
         // -----------
         // operator !=
         // -----------
 
-        friend bool operator != (const Allocator& lhs, const Allocator& rhs) {
-            return !(lhs == rhs);}
+        friend bool operator != (const Allocator& lhs, const Allocator& rhs)
+        {
+            return !(lhs == rhs);
+        }
 
     private:
         // ----
@@ -69,19 +74,24 @@ class Allocator {
          * O(n) in time
          * <your documentation>
          */
-        bool valid () const {
+        bool valid () const
+        {
             // <your code>
-            return true;}
+            return true;
+        }
 
         /**
          * O(1) in space
          * O(1) in time
          * <your documentation>
-         * https://code.google.com/p/googletest/wiki/AdvancedGuide#Private_Class_Members
+         * https://code.google.com/p/googletest/wiki/
+         *     AdvancedGuide#Private_Class_Members
          */
         FRIEND_TEST(TestAllocator2, index);
-        int& operator [] (int i) {
-            return *reinterpret_cast<int*>(&a[i]);}
+        int& operator [] (int i)
+        {
+            return *reinterpret_cast<int*>(&a[i]);
+        }
 
     public:
         // ------------
@@ -91,12 +101,15 @@ class Allocator {
         /**
          * O(1) in space
          * O(1) in time
-         * throw a bad_alloc exception, if N is less than sizeof(T) + (2 * sizeof(int))
+         * throw a bad_alloc exception, if N is less than sizeof(T) + 
+         * (2 * sizeof(int))
          */
-        Allocator () {
+        Allocator ()
+        {
             (*this)[0] = 0; // replace!
             // <your code>
-            assert(valid());}
+            assert(valid());
+        }
 
         // Default copy, destructor, and copy assignment
         // Allocator  (const Allocator&);
@@ -115,10 +128,12 @@ class Allocator {
          * choose the first block that fits
          * throw a bad_alloc exception, if n is invalid
          */
-        pointer allocate (size_type n) {
+        pointer allocate (size_type n)
+        {
             // <your code>
             assert(valid());
-            return nullptr;}             // replace!
+            return nullptr; // replace
+        }
 
         // ---------
         // construct
@@ -128,9 +143,11 @@ class Allocator {
          * O(1) in space
          * O(1) in time
          */
-        void construct (pointer p, const_reference v) {
-            new (p) T(v);                               // this is correct and exempt
-            assert(valid());}                           // from the prohibition of new
+        void construct (pointer p, const_reference v)
+        {
+            new (p) T(v);    // this is correct and exempt
+            assert(valid()); // from the prohibition of new
+        }
 
         // ----------
         // deallocate
@@ -143,9 +160,11 @@ class Allocator {
          * throw an invalid_argument exception, if p is invalid
          * <your documentation>
          */
-        void deallocate (pointer p, size_type) {
+        void deallocate (pointer p, size_type)
+        {
             // <your code>
-            assert(valid());}
+            assert(valid());
+        }
 
         // -------
         // destroy
@@ -155,16 +174,21 @@ class Allocator {
          * O(1) in space
          * O(1) in time
          */
-        void destroy (pointer p) {
-            p->~T();               // this is correct
-            assert(valid());}
+        void destroy (pointer p)
+        {
+            p->~T(); // this is correct
+            assert(valid());
+        }
 
         /**
          * O(1) in space
          * O(1) in time
          * <your documentation>
          */
-        const int& operator [] (int i) const {
-            return *reinterpret_cast<const int*>(&a[i]);}};
+        const int& operator [] (int i) const
+        {
+            return *reinterpret_cast<const int*>(&a[i]);
+        }
+    };
 
 #endif // Allocator_h
