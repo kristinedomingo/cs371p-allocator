@@ -74,9 +74,68 @@ class Allocator
          * O(n) in time
          * <your documentation>
          */
+
         bool valid () const
         {
-            // <your code>
+            size_t bytes_read = 0;
+            bool last_was_pos = (*this)[0] > 0 ? true : false;
+            int current_sentinel = (*this)[0];
+
+            // Sentinels cannot be 0
+            if (current_sentinel == 0) return false;
+            
+            // Increment bytes_read to the next sentinel
+            if (current_sentinel < 0)
+            {
+                bytes_read += (current_sentinel * -1) - 4;
+            }
+            else
+            {
+                bytes_read += current_sentinel - 4;
+            }
+
+            // If sentinel pairs do not match, return false
+            if ((*this)[bytes_read] != current_sentinel)
+            {
+                return false;
+            }
+
+            // Increments bytes_read to the next sentinel
+            bytes_read += sizeof(int);
+
+            // Check the rest of the sentinels for validity
+            while (bytes_read < N)
+            {
+                current_sentinel = (*this)[bytes_read];
+                
+                // Sentinels cannot be 0
+                if (current_sentinel == 0) return false;
+                
+                // if new current sentinel not compatible with last was pos
+                if ( (last_was_pos && current_sentinel > 0) ||
+                     (!last_was_pos && current_sentinel < 0))
+                {
+                        return false;
+                }
+                // Increment bytes_read to the next sentinel
+                if (current_sentinel < 0)
+                {
+                    bytes_read += (current_sentinel * -1) - 4;
+                }
+                else
+                {
+                    bytes_read += current_sentinel - 4;
+                }
+
+                // If sentinel pairs do not match, return false
+                if ((*this)[bytes_read] != current_sentinel)
+                {
+                    return false;
+                }
+
+                // Increments bytes_read to the next sentinel
+                bytes_read += sizeof(int);
+            }
             return true;
         }
 
@@ -87,7 +146,8 @@ class Allocator
          * https://code.google.com/p/googletest/wiki/
          *     AdvancedGuide#Private_Class_Members
          */
-        FRIEND_TEST(TestAllocator2, index);
+        FRIEND_TEST(TestAllocator2, index1);
+        FRIEND_TEST(TestAllocator2, index2);
         int& operator [] (int i)
         {
             return *reinterpret_cast<int*>(&a[i]);
@@ -106,8 +166,18 @@ class Allocator
          */
         Allocator ()
         {
-            (*this)[0] = 0; // replace!
-            // <your code>
+            size_t sentinels_size = 2 * sizeof(int);
+
+            if (N < sizeof(T) + sentinels_size)
+            {
+                std::bad_alloc exception;
+                throw exception;
+            }
+
+            // Set sentinels
+            (*this)[0] = N - sentinels_size;
+            (*this)[N - sizeof(int)] = N - sentinels_size;
+
             assert(valid());
         }
 
