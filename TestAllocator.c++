@@ -111,13 +111,61 @@ TYPED_TEST(TestAllocator1, test_10)
 TEST(TestAllocator2, const_index)
 {
     const Allocator<int, 100> x;
-    ASSERT_EQ(x[0], 0);
+    ASSERT_EQ(x[0], 92);
 }
 
-TEST(TestAllocator2, index)
+TEST(TestAllocator2, index1)
 {
     Allocator<int, 100> x;
-    ASSERT_EQ(x[0], 0);
+    ASSERT_EQ(x[0], 92);
+}
+
+TEST(TestAllocator2, index2)
+{
+    Allocator<int, 12> x;
+    ASSERT_EQ(x[0], 4);
+}
+
+TEST(TestAllocator2, exception_is_thrown1)
+{
+    bool exception_thrown = false;
+    try
+    {
+        Allocator<int, 1> x;
+    }
+    catch(std::bad_alloc& e)
+    {
+        exception_thrown = true;
+    }
+    ASSERT_TRUE(exception_thrown);
+}
+
+TEST(TestAllocator2, exception_is_thrown2)
+{
+    bool exception_thrown = false;
+    try
+    {
+        Allocator<int, 12> x;
+    }
+    catch(std::bad_alloc& e)
+    {
+        exception_thrown = true;
+    }
+    ASSERT_FALSE(exception_thrown);
+}
+
+TEST(TestAllocator2, exception_is_thrown3)
+{
+    bool exception_thrown = false;
+    try
+    {
+        Allocator<int, 11> x;
+    }
+    catch(std::bad_alloc& e)
+    {
+        exception_thrown = true;
+    }
+    ASSERT_TRUE(exception_thrown);
 }
 
 // --------------
