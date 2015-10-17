@@ -87,13 +87,13 @@ class Allocator
             // Increment bytes_read to the next sentinel
             if (current_sentinel < 0)
             {
-                bytes_read += (current_sentinel * -1) - 4;
+                bytes_read += (current_sentinel * -1) + 4;
             }
             else
             {
-                bytes_read += current_sentinel - 4;
+                bytes_read += current_sentinel + 4;
             }
-
+            
             // If sentinel pairs do not match, return false
             if ((*this)[bytes_read] != current_sentinel)
             {
@@ -120,11 +120,11 @@ class Allocator
                 // Increment bytes_read to the next sentinel
                 if (current_sentinel < 0)
                 {
-                    bytes_read += (current_sentinel * -1) - 4;
+                    bytes_read += (current_sentinel * -1) + 4;
                 }
                 else
                 {
-                    bytes_read += current_sentinel - 4;
+                    bytes_read += current_sentinel + 4;
                 }
 
                 // If sentinel pairs do not match, return false
