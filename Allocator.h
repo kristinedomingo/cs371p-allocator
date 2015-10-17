@@ -88,9 +88,15 @@ class Allocator
 
         bool valid () const
         {
+            std::cout << std::endl << std::endl;
             size_t bytes_read = 0;
-            bool last_was_pos = (*this)[0] > 0 ? true : false;
-            int current_sentinel = (*this)[0];
+            //bool last_was_pos = (*this)[0] > 0 ? true : false;
+            bool last_was_pos = a[0] > 0 ? true : false;
+            //int current_sentinel = (*this)[0];
+            int current_sentinel = a[0];
+
+            std::cout << "Sentinel 1: " << current_sentinel << std::endl;
+            std::cout << "Bytes read: " << bytes_read << std::endl;
 
             // Sentinels cannot be 0
             if (current_sentinel == 0) return false;
@@ -98,10 +104,15 @@ class Allocator
             bytes_read += bytes_to_next_sentinel (current_sentinel);
             
             // If sentinel pairs do not match, return false
-            if ((*this)[bytes_read] != current_sentinel)
+            if (a[bytes_read] != current_sentinel)
             {
+                std::cout << "Sentinels did not match, second sentinel: " << a[bytes_read] << std::endl;
+                std::cout << "Bytes read: " << bytes_read << std::endl;
                 return false;
             }
+            int val = a[bytes_read];
+            std::cout << "Sentinel 2: " << val << std::endl;
+            std::cout << "Bytes read: " << bytes_read << std::endl;
 
             // Increments bytes_read to the next sentinel
             bytes_read += sizeof(int);
@@ -109,7 +120,10 @@ class Allocator
             // Check the rest of the sentinels for validity
             while (bytes_read < N)
             {
-                current_sentinel = (*this)[bytes_read];
+                current_sentinel = a[bytes_read];
+            
+                std::cout << "Sentinel 1: " << current_sentinel << std::endl;
+                std::cout << "Bytes read: " << bytes_read << std::endl;
                 
                 // Sentinels cannot be 0
                 if (current_sentinel == 0) return false;
@@ -123,14 +137,21 @@ class Allocator
                 bytes_read += bytes_to_next_sentinel (current_sentinel);
 
                 // If sentinel pairs do not match, return false
-                if ((*this)[bytes_read] != current_sentinel)
+                if (a[bytes_read] != current_sentinel)
                 {
+                    std::cout << "Sentinels did not match, second sentinel: " << a[bytes_read] << std::endl;
+                    std::cout << "Bytes read: " << bytes_read << std::endl;
                     return false;
                 }
+                
+                val = a[bytes_read];
+                std::cout << "Sentinel 2: " << val << std::endl;
+                std::cout << "Bytes read: " << bytes_read << std::endl;
 
                 // Increments bytes_read to the next sentinel
                 bytes_read += sizeof(int);
             }
+            std::cout << std::endl << std::endl;
             return true;
         }
 
@@ -185,37 +206,62 @@ class Allocator
          * Check if a given block should be allocated and/or split into two smaller blocks
          * Return pointer to allocated area if appropriate, null pointer otherwise
         */
-        pointer allocate_if_possible(size_t bytes_read, int current_sentinel, size_t bytes_needed, size_t n){
+        pointer allocate_if_possible(size_t bytes_read, int current_sentinel, int bytes_needed, size_t n){
+            std::cout << "bytes needed: " << bytes_needed << std::endl;
+            std::cout << "current sent: " << current_sentinel << std::endl;
+            std::cout << "bytes read: " << bytes_read << std::endl;
+            
             //if enough space here, return
             if (current_sentinel >= bytes_needed && current_sentinel > 0)
             {
-                int remaining_space = current_sentinel + (2 * sizeof(int)) - (2 * sizeof(int)) + (n * sizeof(T));
+                int remaining_space = current_sentinel + (2 * sizeof(int)) - ((2 * sizeof(int)) + (n * sizeof(T)));
                
+                std::cout << "remaining space: " << remaining_space << std::endl;
+
                 // If there is enough space to allocate n Ts AND another "smallest allowable block":
                 if (remaining_space >= (2 * sizeof(int) + sizeof(T)))
                 {
                     // Create pointer to beginning of allocated space
                     bytes_read += 4;
-                    pointer p = reinterpret_cast<const T*>(a + bytes_read);
+                    pointer p = reinterpret_cast<T*>(a + bytes_read);
                     // Modify first sentinel to new value
                     a[bytes_read - sizeof(int)] = bytes_needed * -1;
+
+                    std::cout << "first sent, first group: " << bytes_needed * -1;
+                    std::cout << std::endl;
+
                     // Go to second sentinel
                     bytes_read += bytes_needed;
+                    
+                    std::cout << "bytes read: " << bytes_read << std::endl;
+                    
                     // Create an end sentinel
                     a[bytes_read] = bytes_needed * -1;
                     // Go to first in second group of sentinels
                     bytes_read += 4;
+                    
+                    std::cout << "bytes read: " << bytes_read << std::endl;
+                    
                     // Create first sentinel in second group
                     a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    
+                    std::cout << "first sent, second group: " << remaining_space - 2 * sizeof(int);
+                    std::cout << std::endl;
+                    
                     // Create second sentinel in second group
                     bytes_read += remaining_space - 4;
+                    
+                    std::cout << "bytes read: " << bytes_read << std::endl;
+                    
                     a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    assert(valid());
                     return p;
                 }
                 // If there's not enough space for another T and 2 sentinels, just fill in this block
                 else
                 {
-                    pointer p = reinterpret_cast<const T*>(a + bytes_read + 4);
+                    pointer p = reinterpret_cast<T*>(a + bytes_read + 4);
+                    assert(valid());
                     return p;
                 }
             }
@@ -227,6 +273,7 @@ class Allocator
         // allocate
         // --------
 
+        FRIEND_TEST(TestAllocator2, allocate_1);
         /**
          * O(1) in space
          * O(n) in time
@@ -235,7 +282,7 @@ class Allocator
          * choose the first block that fits
          * throw a bad_alloc exception, if n is invalid
          */
-        pointer allocate (size_type n)
+        pointer allocate (const size_type& n)
         {
             assert (n > 0);
 
