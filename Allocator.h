@@ -74,6 +74,17 @@ class Allocator
          * O(n) in time
          * <your documentation>
          */
+        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_1);
+        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_2);
+        size_t bytes_to_next_sentinel (int current_sentinel) const 
+        {
+            // Increment bytes_read to the next sentinel
+            if (current_sentinel < 0)
+            {
+                return (current_sentinel * -1) + 4;
+            }
+            return current_sentinel + 4;
+        }
 
         bool valid () const
         {
@@ -84,15 +95,7 @@ class Allocator
             // Sentinels cannot be 0
             if (current_sentinel == 0) return false;
             
-            // Increment bytes_read to the next sentinel
-            if (current_sentinel < 0)
-            {
-                bytes_read += (current_sentinel * -1) + 4;
-            }
-            else
-            {
-                bytes_read += current_sentinel + 4;
-            }
+            bytes_read += bytes_to_next_sentinel (current_sentinel);
             
             // If sentinel pairs do not match, return false
             if ((*this)[bytes_read] != current_sentinel)
@@ -117,15 +120,7 @@ class Allocator
                 {
                         return false;
                 }
-                // Increment bytes_read to the next sentinel
-                if (current_sentinel < 0)
-                {
-                    bytes_read += (current_sentinel * -1) + 4;
-                }
-                else
-                {
-                    bytes_read += current_sentinel + 4;
-                }
+                bytes_read += bytes_to_next_sentinel (current_sentinel);
 
                 // If sentinel pairs do not match, return false
                 if ((*this)[bytes_read] != current_sentinel)
@@ -146,7 +141,7 @@ class Allocator
          * https://code.google.com/p/googletest/wiki/
          *     AdvancedGuide#Private_Class_Members
          */
-        FRIEND_TEST(TestAllocator2, index1);
+        FRIEND_TEST(TestAllocator2, index1); 
         FRIEND_TEST(TestAllocator2, index2);
         int& operator [] (int i)
         {
@@ -186,6 +181,48 @@ class Allocator
         // ~Allocator ();
         // Allocator& operator = (const Allocator&);
 
+        /* Helper method for allocate
+         * Check if a given block should be allocated and/or split into two smaller blocks
+         * Return pointer to allocated area if appropriate, null pointer otherwise
+        */
+        pointer allocate_if_possible(size_t bytes_read, int current_sentinel, size_t bytes_needed, size_t n){
+            //if enough space here, return
+            if (current_sentinel >= bytes_needed && current_sentinel > 0)
+            {
+                int remaining_space = current_sentinel + (2 * sizeof(int)) - (2 * sizeof(int)) + (n * sizeof(T));
+               
+                // If there is enough space to allocate n Ts AND another "smallest allowable block":
+                if (remaining_space >= (2 * sizeof(int) + sizeof(T)))
+                {
+                    // Create pointer to beginning of allocated space
+                    bytes_read += 4;
+                    pointer p = reinterpret_cast<const T*>(a + bytes_read);
+                    // Modify first sentinel to new value
+                    a[bytes_read - sizeof(int)] = bytes_needed * -1;
+                    // Go to second sentinel
+                    bytes_read += bytes_needed;
+                    // Create an end sentinel
+                    a[bytes_read] = bytes_needed * -1;
+                    // Go to first in second group of sentinels
+                    bytes_read += 4;
+                    // Create first sentinel in second group
+                    a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    // Create second sentinel in second group
+                    bytes_read += remaining_space - 4;
+                    a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    return p;
+                }
+                // If there's not enough space for another T and 2 sentinels, just fill in this block
+                else
+                {
+                    pointer p = reinterpret_cast<const T*>(a + bytes_read + 4);
+                    return p;
+                }
+            }
+            // Return null pointer if this block was not suitable
+            return nullptr;
+        }
+
         // --------
         // allocate
         // --------
@@ -200,9 +237,40 @@ class Allocator
          */
         pointer allocate (size_type n)
         {
-            // <your code>
+            assert (n > 0);
+
+            size_t bytes_read = 0;
+            int current_sentinel = (*this)[0];
+            size_t bytes_needed = n * sizeof(T);
+
+            pointer p = allocate_if_possible(bytes_read, current_sentinel, bytes_needed, n);
+            if (p != NULL) 
+            {
+                return p;
+            }
+
+            bytes_read += bytes_to_next_sentinel (current_sentinel) + sizeof(int);
+
+            // Check the rest of the sentinels for possible allocation
+            while (bytes_read < N)
+            {
+                current_sentinel = (*this)[bytes_read];
+                pointer p = allocate_if_possible(bytes_read, current_sentinel, bytes_needed, n);
+                
+                if (p != NULL)
+                {
+                    return p;
+                }
+
+                bytes_read += bytes_to_next_sentinel (current_sentinel) + sizeof(int);
+            }
+
+            // If there is no more space, throw bad_alloc
+            std::bad_alloc e;
+            throw e;
+
             assert(valid());
-            return nullptr; // replace
+            return nullptr; // Will never reach here
         }
 
         // ---------

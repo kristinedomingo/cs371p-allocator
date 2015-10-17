@@ -168,6 +168,25 @@ TEST(TestAllocator2, exception_is_thrown3)
     ASSERT_TRUE(exception_thrown);
 }
 
+TEST(TestAllocator2, bytes_to_next_sentinel_1)
+{
+    Allocator <int, 100> a;
+    ASSERT_EQ (a.bytes_to_next_sentinel(92), 96);
+}
+TEST(TestAllocator2, bytes_to_next_sentinel_2)
+{
+    Allocator <int, 100> a;
+    ASSERT_EQ (a.bytes_to_next_sentinel(-92), 96);
+}
+TEST(TestAllocator2, allocate_1) {
+    Allocator<int, 50> x;
+    const size_t s = 1;
+    x.allocate(s);  
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], 30);
+    ASSERT_EQ(x[46], 30);
+}
 // --------------
 // TestAllocator3
 // --------------
