@@ -181,19 +181,12 @@ TEST(TestAllocator2, bytes_to_next_sentinel_2)
 TEST(TestAllocator2, allocate_1) {
     Allocator<int, 50> x;
     const size_t s = 1;
-    x.allocate(s);  
+    x.allocate(s);    
     
-    const int zero = x[0];
-    const int eight = x[8];
-
-    ASSERT_EQ(zero, -4);
-    ASSERT_EQ(eight, -4);
-    
-    
-    //ASSERT_EQ(x[0], -4);
-    //ASSERT_EQ(x[8], -4);
-    //ASSERT_EQ(x[12], 30);
-    //ASSERT_EQ(x[46], 30);
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], 30);
+    ASSERT_EQ(x[46], 30);
 }
 // --------------
 // TestAllocator3

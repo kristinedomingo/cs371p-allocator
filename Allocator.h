@@ -91,9 +91,9 @@ class Allocator
             std::cout << std::endl << std::endl;
             size_t bytes_read = 0;
             //bool last_was_pos = (*this)[0] > 0 ? true : false;
-            bool last_was_pos = a[0] > 0 ? true : false;
+            bool last_was_pos = (*this)[0] > 0 ? true : false;
             //int current_sentinel = (*this)[0];
-            int current_sentinel = a[0];
+            int current_sentinel = (*this)[0];
 
             std::cout << "Sentinel 1: " << current_sentinel << std::endl;
             std::cout << "Bytes read: " << bytes_read << std::endl;
@@ -104,13 +104,13 @@ class Allocator
             bytes_read += bytes_to_next_sentinel (current_sentinel);
             
             // If sentinel pairs do not match, return false
-            if (a[bytes_read] != current_sentinel)
+            if ((*this)[bytes_read] != current_sentinel)
             {
-                std::cout << "Sentinels did not match, second sentinel: " << a[bytes_read] << std::endl;
+                std::cout << "Sentinels did not match, second sentinel: " << (*this)[bytes_read] << std::endl;
                 std::cout << "Bytes read: " << bytes_read << std::endl;
                 return false;
             }
-            int val = a[bytes_read];
+            int val = (*this)[bytes_read];
             std::cout << "Sentinel 2: " << val << std::endl;
             std::cout << "Bytes read: " << bytes_read << std::endl;
 
@@ -120,7 +120,7 @@ class Allocator
             // Check the rest of the sentinels for validity
             while (bytes_read < N)
             {
-                current_sentinel = a[bytes_read];
+                current_sentinel = (*this)[bytes_read];
             
                 std::cout << "Sentinel 1: " << current_sentinel << std::endl;
                 std::cout << "Bytes read: " << bytes_read << std::endl;
@@ -137,14 +137,14 @@ class Allocator
                 bytes_read += bytes_to_next_sentinel (current_sentinel);
 
                 // If sentinel pairs do not match, return false
-                if (a[bytes_read] != current_sentinel)
+                if ((*this)[bytes_read] != current_sentinel)
                 {
-                    std::cout << "Sentinels did not match, second sentinel: " << a[bytes_read] << std::endl;
+                    std::cout << "Sentinels did not match, second sentinel: " << (*this)[bytes_read] << std::endl;
                     std::cout << "Bytes read: " << bytes_read << std::endl;
                     return false;
                 }
                 
-                val = a[bytes_read];
+                val = (*this)[bytes_read];
                 std::cout << "Sentinel 2: " << val << std::endl;
                 std::cout << "Bytes read: " << bytes_read << std::endl;
 
@@ -224,8 +224,9 @@ class Allocator
                     // Create pointer to beginning of allocated space
                     bytes_read += 4;
                     pointer p = reinterpret_cast<T*>(a + bytes_read);
+
                     // Modify first sentinel to new value
-                    a[bytes_read - sizeof(int)] = bytes_needed * -1;
+                    (*this)[bytes_read - sizeof(int)] = bytes_needed * -1;
 
                     std::cout << "first sent, first group: " << bytes_needed * -1;
                     std::cout << std::endl;
@@ -236,14 +237,14 @@ class Allocator
                     std::cout << "bytes read: " << bytes_read << std::endl;
                     
                     // Create an end sentinel
-                    a[bytes_read] = bytes_needed * -1;
+                    (*this)[bytes_read] = bytes_needed * -1;
                     // Go to first in second group of sentinels
                     bytes_read += 4;
                     
                     std::cout << "bytes read: " << bytes_read << std::endl;
                     
                     // Create first sentinel in second group
-                    a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
                     
                     std::cout << "first sent, second group: " << remaining_space - 2 * sizeof(int);
                     std::cout << std::endl;
@@ -253,7 +254,7 @@ class Allocator
                     
                     std::cout << "bytes read: " << bytes_read << std::endl;
                     
-                    a[bytes_read] = remaining_space - 2 * sizeof(int);
+                    (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
                     assert(valid());
                     return p;
                 }
