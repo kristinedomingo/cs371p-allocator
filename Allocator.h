@@ -223,7 +223,7 @@ class Allocator
                 {
                     // Create pointer to beginning of allocated space
                     bytes_read += 4;
-                    pointer p = reinterpret_cast<T*>(a + bytes_read);
+                    pointer p = reinterpret_cast<pointer>(&a[bytes_read]);
 
                     // Modify first sentinel to new value
                     (*this)[bytes_read - sizeof(int)] = bytes_needed * -1;
@@ -261,7 +261,7 @@ class Allocator
                 // If there's not enough space for another T and 2 sentinels, just fill in this block
                 else
                 {
-                    pointer p = reinterpret_cast<T*>(a + bytes_read + 4);
+                    pointer p = reinterpret_cast<pointer>(&a[bytes_read + 4]);
 
                     // Mark current pair of sentinels as "used"
                     (*this)[bytes_read] *= -1;
@@ -359,7 +359,78 @@ class Allocator
          */
         void deallocate (pointer p, size_type)
         {
-            // <your code>
+            int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
+            int sentinel_value = *(sentinel_pointer);
+            std::cout << "Initial sentinel value is " << sentinel_value << std::endl;
+
+            int* beginning_of_a = reinterpret_cast<int*>(&a);
+            int* end_of_a = beginning_of_a + sizeof(a);
+
+            char* last_valid_location = reinterpret_cast<char*>(end_of_a - (2 * sizeof(int)) - sizeof(T));
+            if(sentinel_value > 0 ||
+               reinterpret_cast<int*>(p) < beginning_of_a ||
+               reinterpret_cast<char*>(p) > last_valid_location)
+            {
+                throw std::invalid_argument("Invalid p pointer");
+            }
+
+            // Make sentinel_value positive
+            if(sentinel_value < 0)
+            {
+                sentinel_value *= -1;
+                std::cout << "Positive sentinel value is " << sentinel_value << std::endl;
+            }
+
+            // Mark the "beginning sentinel" in this block
+            int* first_sentinel = sentinel_pointer;
+            char* reader = reinterpret_cast<char*>(first_sentinel);
+
+            // Mark the "end sentinel" in this block
+            char* second_reader = reinterpret_cast<char*>(first_sentinel) +
+                                  sentinel_value + sizeof(int);
+            int* end_sentinel = reinterpret_cast<int*>(second_reader);
+
+            // Check for free blocks BEFORE this block
+            if(first_sentinel - 1 > beginning_of_a)
+            {
+                std::cout << "Coalescing before block" << std::endl;
+                // Check if previous block is free
+                int previous_sentinel_value = *(reader - 4);
+                if(previous_sentinel_value > 0)
+                {
+                    // Set the first_sentinel to the previous block's first sentinel
+                    first_sentinel = reinterpret_cast<int*>(reader - previous_sentinel_value - (2 * sizeof(int)));
+
+                    // Accumulate sentinel value
+                    sentinel_value += previous_sentinel_value + (2 * sizeof(int));
+                    std::cout << "New sentinel value is " << sentinel_value << std::endl;
+                }
+            }
+
+            // Check for free blocks AFTER this block
+            if(end_sentinel + 1 < end_of_a)
+            {
+                std::cout << "Coalescing after block" << std::endl;
+                // Check if next block is free
+                int next_sentinel_value = *(second_reader + 4);
+                std::cout << "Next sentinel value: " << next_sentinel_value << std::endl;
+
+                if(next_sentinel_value > 0)
+                {
+                    // Set the end_sentinel to the next block's end sentinel
+                    end_sentinel = reinterpret_cast<int*>(second_reader + next_sentinel_value + (2 * sizeof(int)));
+
+                    // Accumulate sentinel value
+                    sentinel_value += next_sentinel_value + (2 * sizeof(int));
+                    std::cout << "New sentinel value is " << sentinel_value << std::endl;
+                }
+            }
+
+            // Set the values of the new sentinels
+            *(first_sentinel) = sentinel_value;
+            *(end_sentinel) = sentinel_value;
+
+
             assert(valid());
         }
 
