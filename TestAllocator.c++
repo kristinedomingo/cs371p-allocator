@@ -300,6 +300,72 @@ TEST(TestAllocator2, allocate_4) {
     ASSERT_TRUE(exception_thrown);
 }
 
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_5 test name
+ */
+TEST(TestAllocator2, allocate_5)
+{
+    Allocator<int, 24> x;
+    const size_t s = 1;
+    x.allocate(s);
+
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], 4);
+    ASSERT_EQ(x[20], 4);
+}
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_6 test name
+ */
+TEST(TestAllocator2, allocate_6)
+{
+    Allocator<int, 24> x;
+    const size_t s = 1;
+    x.allocate(s);
+
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], 4);
+    ASSERT_EQ(x[20], 4);
+
+    x.allocate(s);
+    ASSERT_EQ(x[0],  -4);
+    ASSERT_EQ(x[8],  -4);
+    ASSERT_EQ(x[12], -4);
+    ASSERT_EQ(x[20], -4);
+}
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_7 test name
+ */
+TEST(TestAllocator2, allocate_7)
+{
+    Allocator<int, 20> x;
+    const size_t s = 1;
+    x.allocate(s);
+
+    ASSERT_EQ(x[0],  -12);
+    ASSERT_EQ(x[16], -12);
+
+    bool exception_thrown = false;
+    try
+    {
+        x.allocate(s);
+    }
+    catch(std::bad_alloc& e)
+    {
+        exception_thrown = true;
+    }
+    ASSERT_TRUE(exception_thrown);
+}
+
 
 // --------------
 // TestAllocator3

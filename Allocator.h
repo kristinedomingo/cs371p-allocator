@@ -283,6 +283,9 @@ class Allocator
         FRIEND_TEST(TestAllocator2, allocate_2);
         FRIEND_TEST(TestAllocator2, allocate_3);
         FRIEND_TEST(TestAllocator2, allocate_4);
+        FRIEND_TEST(TestAllocator2, allocate_5);
+        FRIEND_TEST(TestAllocator2, allocate_6);
+        FRIEND_TEST(TestAllocator2, allocate_7);
         /**
          * O(1) in space
          * O(n) in time
