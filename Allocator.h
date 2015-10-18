@@ -129,11 +129,11 @@ class Allocator
                 if (current_sentinel == 0) return false;
                 
                 // if new current sentinel not compatible with last was pos
-                if ( (last_was_pos && current_sentinel > 0) ||
-                     (!last_was_pos && current_sentinel < 0))
+                if (last_was_pos && current_sentinel > 0)
                 {
-                        return false;
+                    return false;
                 }
+
                 bytes_read += bytes_to_next_sentinel (current_sentinel);
 
                 // If sentinel pairs do not match, return false
@@ -162,8 +162,8 @@ class Allocator
          * https://code.google.com/p/googletest/wiki/
          *     AdvancedGuide#Private_Class_Members
          */
-        FRIEND_TEST(TestAllocator2, index1); 
-        FRIEND_TEST(TestAllocator2, index2);
+        FRIEND_TEST(TestAllocator2, index_1); 
+        FRIEND_TEST(TestAllocator2, index_2);
         int& operator [] (int i)
         {
             return *reinterpret_cast<int*>(&a[i]);
@@ -262,6 +262,11 @@ class Allocator
                 else
                 {
                     pointer p = reinterpret_cast<T*>(a + bytes_read + 4);
+
+                    // Mark current pair of sentinels as "used"
+                    (*this)[bytes_read] *= -1;
+                    (*this)[bytes_read + current_sentinel + sizeof(int)] *= -1;
+
                     assert(valid());
                     return p;
                 }
@@ -275,6 +280,9 @@ class Allocator
         // --------
 
         FRIEND_TEST(TestAllocator2, allocate_1);
+        FRIEND_TEST(TestAllocator2, allocate_2);
+        FRIEND_TEST(TestAllocator2, allocate_3);
+        FRIEND_TEST(TestAllocator2, allocate_4);
         /**
          * O(1) in space
          * O(n) in time

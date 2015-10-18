@@ -108,25 +108,45 @@ TYPED_TEST(TestAllocator1, test_10)
 // TestAllocator2
 // --------------
 
+/**
+ * Tests const indexing operator
+ * @param TestAllocator2 a fixture
+ * @param const_index test name
+ */
 TEST(TestAllocator2, const_index)
 {
     const Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
 }
 
-TEST(TestAllocator2, index1)
+/**
+ * Tests indexing operator
+ * @param TestAllocator2 a fixture
+ * @param index_1 test name
+ */
+TEST(TestAllocator2, index_1)
 {
     Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
 }
 
-TEST(TestAllocator2, index2)
+/**
+ * Tests indexing operator
+ * @param TestAllocator2 a fixture
+ * @param index2 test name
+ */
+TEST(TestAllocator2, index_2)
 {
     Allocator<int, 12> x;
     ASSERT_EQ(x[0], 4);
 }
 
-TEST(TestAllocator2, exception_is_thrown1)
+/**
+ * Tests that constructor throws bad_alloc
+ * @param TestAllocator2 a fixture
+ * @param exception_is_thrown_1 test name
+ */
+TEST(TestAllocator2, exception_is_thrown_1)
 {
     bool exception_thrown = false;
     try
@@ -140,6 +160,11 @@ TEST(TestAllocator2, exception_is_thrown1)
     ASSERT_TRUE(exception_thrown);
 }
 
+/**
+ * Tests that constructor throws bad_alloc
+ * @param TestAllocator2 a fixture
+ * @param exception_is_thrown2 test name
+ */
 TEST(TestAllocator2, exception_is_thrown2)
 {
     bool exception_thrown = false;
@@ -154,6 +179,11 @@ TEST(TestAllocator2, exception_is_thrown2)
     ASSERT_FALSE(exception_thrown);
 }
 
+/**
+ * Tests that constructor throws bad_alloc
+ * @param TestAllocator2 a fixture
+ * @param exception_is_thrown3 test name
+ */
 TEST(TestAllocator2, exception_is_thrown3)
 {
     bool exception_thrown = false;
@@ -168,26 +198,109 @@ TEST(TestAllocator2, exception_is_thrown3)
     ASSERT_TRUE(exception_thrown);
 }
 
+/**
+ * Tests that helper function moves to index of next sentinel
+ * @param TestAllocator2 a fixture
+ * @param bytes_to_next_sentinel_1 test name
+ */
 TEST(TestAllocator2, bytes_to_next_sentinel_1)
 {
     Allocator <int, 100> a;
     ASSERT_EQ (a.bytes_to_next_sentinel(92), 96);
 }
+
+/**
+ * Tests that helper function moves to index of next sentinel
+ * @param TestAllocator2 a fixture
+ * @param bytes_to_next_sentinel_2 test name
+ */
 TEST(TestAllocator2, bytes_to_next_sentinel_2)
 {
     Allocator <int, 100> a;
     ASSERT_EQ (a.bytes_to_next_sentinel(-92), 96);
 }
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_1 test name
+ */
 TEST(TestAllocator2, allocate_1) {
     Allocator<int, 50> x;
     const size_t s = 1;
-    x.allocate(s);    
+    x.allocate(s);
     
     ASSERT_EQ(x[0], -4);
     ASSERT_EQ(x[8], -4);
     ASSERT_EQ(x[12], 30);
     ASSERT_EQ(x[46], 30);
 }
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_1 test name
+ */
+TEST(TestAllocator2, allocate_2) {
+    Allocator<double, 100> x;
+    const size_t s = 4;
+    x.allocate(s);
+    
+    ASSERT_EQ(x[0], -32);
+    ASSERT_EQ(x[36], -32);
+    ASSERT_EQ(x[40], 52);
+    ASSERT_EQ(x[96], 52);
+}
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_1 test name
+ */
+TEST(TestAllocator2, allocate_3) {
+    Allocator<int, 100> x;
+    ASSERT_EQ(x[0], 92);
+    ASSERT_EQ(x[96], 92);
+
+    const size_t s = 1;
+
+    x.allocate(s);
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], 80);
+    ASSERT_EQ(x[96], 80);
+
+    x.allocate(s);
+    ASSERT_EQ(x[0], -4);
+    ASSERT_EQ(x[8], -4);
+    ASSERT_EQ(x[12], -4);
+    ASSERT_EQ(x[20], -4);
+    ASSERT_EQ(x[24], 68);
+    ASSERT_EQ(x[96], 68);
+}
+
+/**
+ * Tests allocate
+ * @param TestAllocator2 a fixture
+ * @param allocate_1 test name
+ */
+TEST(TestAllocator2, allocate_4) {
+    bool exception_thrown = false;
+    Allocator<double, 100> x;
+    const size_t s = 13;
+    try
+    {
+        x.allocate(s);
+    }
+    catch(std::bad_alloc& e)
+    {
+        exception_thrown = true;
+    }
+
+    ASSERT_TRUE(exception_thrown);
+}
+
+
 // --------------
 // TestAllocator3
 // --------------
