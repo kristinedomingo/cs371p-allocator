@@ -366,6 +366,40 @@ TEST(TestAllocator2, allocate_7)
     ASSERT_TRUE(exception_thrown);
 }
 
+/**
+ * Tests deallocate
+ * @param TestAllocator2 a fixture
+ * @param deallocate_1 test name
+ */
+TEST(TestAllocator2, deallocate_1) {
+    Allocator<int, 100> x;
+    const size_t s = 1;
+
+    int* p = x.allocate(s);
+    int* p2 = x.allocate(s);
+
+    x.deallocate(p, s);
+    x.deallocate(p2, s);
+    ASSERT_EQ(x[0], 92);
+    ASSERT_EQ(x[96], 92);
+}
+
+/**
+ * Tests deallocate
+ * @param TestAllocator2 a fixture
+ * @param deallocate_1 test name
+ */
+TEST(TestAllocator2, deallocate_2) {
+    Allocator<int, 100> x;
+    const size_t s = 1;
+
+    int* p = x.allocate(s);
+
+    x.deallocate(p, s);
+    ASSERT_EQ(x[0], 92);
+    ASSERT_EQ(x[96], 92);
+}
+
 
 // --------------
 // TestAllocator3

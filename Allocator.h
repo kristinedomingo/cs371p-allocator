@@ -115,6 +115,7 @@ class Allocator
             // Sentinels cannot be 0
             if (current_sentinel == 0)
             {
+                std::cout << "========== CURRENT SENTINEL IS 0 ==========" << std::endl;
                 return false;
             }
             
@@ -138,17 +139,24 @@ class Allocator
             {
                 current_sentinel = (*this)[bytes_read];
             
-                std::cout << "Sentinel 1: " << current_sentinel << std::endl;
+                std::cout << "Sentinel next: " << current_sentinel << std::endl;
                 std::cout << "Bytes read: " << bytes_read << std::endl;
                 
                 // Sentinels cannot be 0
-                if (current_sentinel == 0) return false;
+                if (current_sentinel == 0)
+                {
+                    return false;
+                }
                 
                 // There cannot be two free blocks beside each other
                 if (last_was_pos && current_sentinel > 0)
                 {
+                    std::cout << "====== TWO FREE BLOCKS BY EACH OTHER =====" << std::endl;
                     return false;
                 }
+
+                // Update last_was_pos to the current sentinel
+                last_was_pos = (*this)[bytes_read] > 0 ? true : false;
 
                 // Increment bytes_read to the next sentinel
                 bytes_read += bytes_to_next_sentinel (current_sentinel);
@@ -394,6 +402,8 @@ class Allocator
          * throw an invalid_argument exception, if p is invalid
          * <your documentation>
          */
+        FRIEND_TEST(TestAllocator2, deallocate_1);
+        FRIEND_TEST(TestAllocator2, deallocate_2);
         void deallocate (pointer p, size_type)
         {
             int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
@@ -447,26 +457,29 @@ class Allocator
             // Check for free blocks AFTER this block
             if(end_sentinel + 1 < end_of_a)
             {
-                std::cout << "Coalescing after block" << std::endl;
+                std::cout << "checking for free blocks after this block:" << std::endl;
                 // Check if next block is free
                 int next_sentinel_value = *(second_reader + 4);
                 std::cout << "Next sentinel value: " << next_sentinel_value << std::endl;
 
                 if(next_sentinel_value > 0)
                 {
+                    std::cout << "Coalescing after block" << std::endl;
                     // Set the end_sentinel to the next block's end sentinel
                     end_sentinel = reinterpret_cast<int*>(second_reader + next_sentinel_value + (2 * sizeof(int)));
 
+                    std::cout << "==== VALUE OF END SENTINEL IS: " << *(end_sentinel) << std::endl;
                     // Accumulate sentinel value
                     sentinel_value += next_sentinel_value + (2 * sizeof(int));
                     std::cout << "New sentinel value is " << sentinel_value << std::endl;
                 }
             }
 
+            std::cout << "===== FINAL SENTINEL VALUE IS: " << sentinel_value << std::endl;
+
             // Set the values of the new sentinels
             *(first_sentinel) = sentinel_value;
             *(end_sentinel) = sentinel_value;
-
 
             assert(valid());
         }
