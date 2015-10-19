@@ -65,6 +65,29 @@ class Allocator
 
         char a[N];
 
+        // ----------------------
+        // bytes_to_next_sentinel
+        // ----------------------
+
+        /**
+         * A helper function for valid() and allocate(). Returns the absolute
+         * value of current_sentinel plus the size of an integer (4), which is
+         * used to move an index from a beginning sentinel of a block to the
+         * end sentinel.
+         * @param current_sentinel an integer representing a sentinel value
+         * @return a size_t of |current_sentinel| + 4
+         */
+        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_1);
+        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_2);
+        size_t bytes_to_next_sentinel (int current_sentinel) const 
+        {
+            if (current_sentinel < 0)
+            {
+                return (current_sentinel * -1) + sizeof(int);
+            }
+            return current_sentinel + sizeof(int);
+        }
+
         // -----
         // valid
         // -----
@@ -73,35 +96,30 @@ class Allocator
          * O(1) in space
          * O(n) in time
          * <your documentation>
+         * @return a bool value representing whether or not a[] is a valid heap
          */
-        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_1);
-        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_2);
-        size_t bytes_to_next_sentinel (int current_sentinel) const 
-        {
-            // Increment bytes_read to the next sentinel
-            if (current_sentinel < 0)
-            {
-                return (current_sentinel * -1) + 4;
-            }
-            return current_sentinel + 4;
-        }
-
         bool valid () const
         {
             std::cout << std::endl << std::endl;
+
+            // To avoid dealing with checking the validity of the first pair
+            // of sentinels (a special case) check the first one outside
+            // of the while loop, and then check the rest of sentinel pairs.
             size_t bytes_read = 0;
-            //bool last_was_pos = (*this)[0] > 0 ? true : false;
             bool last_was_pos = (*this)[0] > 0 ? true : false;
-            //int current_sentinel = (*this)[0];
             int current_sentinel = (*this)[0];
 
             std::cout << "Sentinel 1: " << current_sentinel << std::endl;
             std::cout << "Bytes read: " << bytes_read << std::endl;
 
             // Sentinels cannot be 0
-            if (current_sentinel == 0) return false;
+            if (current_sentinel == 0)
+            {
+                return false;
+            }
             
-            bytes_read += bytes_to_next_sentinel (current_sentinel);
+            // Increment bytes_read to the next sentinel
+            bytes_read += bytes_to_next_sentinel(current_sentinel);
             
             // If sentinel pairs do not match, return false
             if ((*this)[bytes_read] != current_sentinel)
@@ -110,11 +128,9 @@ class Allocator
                 std::cout << "Bytes read: " << bytes_read << std::endl;
                 return false;
             }
-            int val = (*this)[bytes_read];
-            std::cout << "Sentinel 2: " << val << std::endl;
             std::cout << "Bytes read: " << bytes_read << std::endl;
 
-            // Increments bytes_read to the next sentinel
+            // Increment bytes_read to the next sentinel
             bytes_read += sizeof(int);
 
             // Check the rest of the sentinels for validity
@@ -128,12 +144,13 @@ class Allocator
                 // Sentinels cannot be 0
                 if (current_sentinel == 0) return false;
                 
-                // if new current sentinel not compatible with last was pos
+                // There cannot be two free blocks beside each other
                 if (last_was_pos && current_sentinel > 0)
                 {
                     return false;
                 }
 
+                // Increment bytes_read to the next sentinel
                 bytes_read += bytes_to_next_sentinel (current_sentinel);
 
                 // If sentinel pairs do not match, return false
@@ -143,9 +160,6 @@ class Allocator
                     std::cout << "Bytes read: " << bytes_read << std::endl;
                     return false;
                 }
-                
-                val = (*this)[bytes_read];
-                std::cout << "Sentinel 2: " << val << std::endl;
                 std::cout << "Bytes read: " << bytes_read << std::endl;
 
                 // Increments bytes_read to the next sentinel
@@ -154,6 +168,10 @@ class Allocator
             std::cout << std::endl << std::endl;
             return true;
         }
+
+        // -----------
+        // operator []
+        // -----------
 
         /**
          * O(1) in space
@@ -169,56 +187,35 @@ class Allocator
             return *reinterpret_cast<int*>(&a[i]);
         }
 
-    public:
-        // ------------
-        // constructors
-        // ------------
-
         /**
-         * O(1) in space
-         * O(1) in time
-         * throw a bad_alloc exception, if N is less than sizeof(T) + 
-         * (2 * sizeof(int))
+         * Helper method for allocate that checks if a given block should be 
+         * allocated and/or split into two smaller blocks. Returns a pointer to 
+         * the allocated area if appropriate, and a null pointer otherwise.
+         * @param bytes_read the number of bytes read in a[] at this point
+         * @param current_sentinel the value of the block's sentinel that this
+         *                         function is trying to allocate room in
+         * @param bytes_needed the number of bytes needed for allocation
+         * @param n the number of Ts to allocate
          */
-        Allocator ()
-        {
-            size_t sentinels_size = 2 * sizeof(int);
-
-            if (N < sizeof(T) + sentinels_size)
-            {
-                std::bad_alloc exception;
-                throw exception;
-            }
-
-            // Set sentinels
-            (*this)[0] = N - sentinels_size;
-            (*this)[N - sizeof(int)] = N - sentinels_size;
-
-            assert(valid());
-        }
-
-        // Default copy, destructor, and copy assignment
-        // Allocator  (const Allocator&);
-        // ~Allocator ();
-        // Allocator& operator = (const Allocator&);
-
-        /* Helper method for allocate
-         * Check if a given block should be allocated and/or split into two smaller blocks
-         * Return pointer to allocated area if appropriate, null pointer otherwise
-        */
-        pointer allocate_if_possible(size_t bytes_read, int current_sentinel, int bytes_needed, size_t n){
+        pointer allocate_if_possible(size_t bytes_read, int current_sentinel, 
+                                     int bytes_needed, size_t n){
             std::cout << "bytes needed: " << bytes_needed << std::endl;
             std::cout << "current sent: " << current_sentinel << std::endl;
             std::cout << "bytes read: " << bytes_read << std::endl;
             
-            //if enough space here, return
+            // If there is enough space in this block, allocate:
             if (current_sentinel >= bytes_needed && current_sentinel > 0)
             {
-                int remaining_space = current_sentinel + (2 * sizeof(int)) - ((2 * sizeof(int)) + (n * sizeof(T)));
+                // Calculate the remaining space there would be in this block if
+                // n Ts have been allocated
+                int remaining_space = current_sentinel + (2 * sizeof(int)) - 
+                                      ((2 * sizeof(int)) + (n * sizeof(T)));
                
                 std::cout << "remaining space: " << remaining_space << std::endl;
 
-                // If there is enough space to allocate n Ts AND another "smallest allowable block":
+                // If there is enough space to allocate n Ts AND another block
+                // that is AT LEAST bigger than the "smallest allowable block",
+                // create two more sentinels to designate the latter
                 if (remaining_space >= (2 * sizeof(int) + sizeof(T)))
                 {
                     // Create pointer to beginning of allocated space
@@ -258,7 +255,8 @@ class Allocator
                     assert(valid());
                     return p;
                 }
-                // If there's not enough space for another T and 2 sentinels, just fill in this block
+                // If there's not enough space for another T and 2 sentinels, 
+                // just fill in this block
                 else
                 {
                     pointer p = reinterpret_cast<pointer>(&a[bytes_read + 4]);
@@ -271,9 +269,43 @@ class Allocator
                     return p;
                 }
             }
+
             // Return null pointer if this block was not suitable
             return nullptr;
         }
+
+    public:
+        // ------------
+        // constructors
+        // ------------
+
+        /**
+         * O(1) in space
+         * O(1) in time
+         * throw a bad_alloc exception, if N is less than sizeof(T) + 
+         * (2 * sizeof(int))
+         */
+        Allocator ()
+        {
+            size_t sentinels_size = 2 * sizeof(int);
+
+            if (N < sizeof(T) + sentinels_size)
+            {
+                std::bad_alloc exception;
+                throw exception;
+            }
+
+            // Set sentinels
+            (*this)[0] = N - sentinels_size;
+            (*this)[N - sizeof(int)] = N - sentinels_size;
+
+            assert(valid());
+        }
+
+        // Default copy, destructor, and copy assignment
+        // Allocator  (const Allocator&);
+        // ~Allocator ();
+        // Allocator& operator = (const Allocator&);
 
         // --------
         // allocate
@@ -298,19 +330,22 @@ class Allocator
         {
             assert (n > 0);
 
+            // Check if n Ts can be allocated in the first block
             size_t bytes_read = 0;
             int current_sentinel = (*this)[0];
             size_t bytes_needed = n * sizeof(T);
-
             pointer p = allocate_if_possible(bytes_read, current_sentinel, bytes_needed, n);
-            if (p != NULL) 
+
+            if (p != NULL)
             {
                 return p;
             }
 
+            // If n Ts cannot be allocated in the first block, move bytes_read
+            // to the next pair of sentinels
             bytes_read += bytes_to_next_sentinel (current_sentinel) + sizeof(int);
 
-            // Check the rest of the sentinels for possible allocation
+            // Then, check the rest of the sentinels for possible allocation
             while (bytes_read < N)
             {
                 current_sentinel = (*this)[bytes_read];
@@ -321,6 +356,8 @@ class Allocator
                     return p;
                 }
 
+                // If n Ts cannot be allocated in the first block, move
+                // bytes_read to the next pair of sentinels
                 bytes_read += bytes_to_next_sentinel (current_sentinel) + sizeof(int);
             }
 
