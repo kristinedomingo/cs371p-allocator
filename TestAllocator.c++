@@ -225,7 +225,8 @@ TEST(TestAllocator2, bytes_to_next_sentinel_2)
  * @param TestAllocator2 a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_1) {
+TEST(TestAllocator2, allocate_1)
+{
     Allocator<int, 50> x;
     const size_t s = 1;
     x.allocate(s);
@@ -241,7 +242,8 @@ TEST(TestAllocator2, allocate_1) {
  * @param TestAllocator2 a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_2) {
+TEST(TestAllocator2, allocate_2)
+{
     Allocator<double, 100> x;
     const size_t s = 4;
     x.allocate(s);
@@ -257,7 +259,8 @@ TEST(TestAllocator2, allocate_2) {
  * @param TestAllocator2 a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_3) {
+TEST(TestAllocator2, allocate_3)
+{
     Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
     ASSERT_EQ(x[96], 92);
@@ -284,7 +287,8 @@ TEST(TestAllocator2, allocate_3) {
  * @param TestAllocator2 a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_4) {
+TEST(TestAllocator2, allocate_4)
+{
     bool exception_thrown = false;
     Allocator<double, 100> x;
     const size_t s = 13;
@@ -371,7 +375,8 @@ TEST(TestAllocator2, allocate_7)
  * @param TestAllocator2 a fixture
  * @param deallocate_1 test name
  */
-TEST(TestAllocator2, deallocate_1) {
+TEST(TestAllocator2, deallocate_1)
+{
     Allocator<int, 100> x;
     const size_t s = 1;
 
@@ -389,7 +394,8 @@ TEST(TestAllocator2, deallocate_1) {
  * @param TestAllocator2 a fixture
  * @param deallocate_1 test name
  */
-TEST(TestAllocator2, deallocate_2) {
+TEST(TestAllocator2, deallocate_2)
+{
     Allocator<int, 100> x;
     const size_t s = 1;
 

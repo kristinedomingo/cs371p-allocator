@@ -100,7 +100,7 @@ class Allocator
          */
         bool valid () const
         {
-            std::cout << std::endl << std::endl;
+            std::cout << "\n\n=================== BEGIN VALID() RUN =================" << std::endl;
 
             // To avoid dealing with checking the validity of the first pair
             // of sentinels (a special case) check the first one outside
@@ -220,6 +220,7 @@ class Allocator
                                       ((2 * sizeof(int)) + (n * sizeof(T)));
                
                 std::cout << "remaining space: " << remaining_space << std::endl;
+                std::cout << "needed space: " << (2 * sizeof(int) + sizeof(T)) << std::endl;
 
                 // If there is enough space to allocate n Ts AND another block
                 // that is AT LEAST bigger than the "smallest allowable block",
@@ -337,6 +338,7 @@ class Allocator
         pointer allocate (const size_type& n)
         {
             assert (n > 0);
+            std::cout << "=================== BEGIN ALLOCATE() RUN =================" << std::endl;
 
             // Check if n Ts can be allocated in the first block
             size_t bytes_read = 0;
@@ -411,7 +413,7 @@ class Allocator
             std::cout << "Initial sentinel value is " << sentinel_value << std::endl;
 
             int* beginning_of_a = reinterpret_cast<int*>(&a);
-            int* end_of_a = beginning_of_a + sizeof(a);
+            int* end_of_a = reinterpret_cast<int*>(&a[sizeof(a) / sizeof(a[0])]);
 
             char* last_valid_location = reinterpret_cast<char*>(end_of_a - (2 * sizeof(int)) - sizeof(T));
             if(sentinel_value > 0 ||
@@ -457,8 +459,13 @@ class Allocator
             // Check for free blocks AFTER this block
             if(end_sentinel + 1 < end_of_a)
             {
+                std::cout << "end sentinel is " << end_sentinel << std::endl;
+                std::cout << "end sentinel + 1 is " << end_sentinel + 1 << std::endl;
+                std::cout << "end of a is " << end_of_a << std::endl;
                 std::cout << "checking for free blocks after this block:" << std::endl;
                 // Check if next block is free
+                std::cout << "===== FIRST SENTINEL VALUE: " << *(first_sentinel) << std::endl;
+                std::cout << "===== SECOND SENTINEL VALUE: " << *(end_sentinel) << std::endl;
                 int next_sentinel_value = *(second_reader + 4);
                 std::cout << "Next sentinel value: " << next_sentinel_value << std::endl;
 
