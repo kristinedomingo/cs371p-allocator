@@ -1,3 +1,8 @@
+/** @file TestAllocator.c++
+ * @brief This file contains unit tests for Allocator.h
+ */
+
+
 // ------------------------------------
 // projects/allocator/TestAllocator1.c++
 // Copyright (C) 2015

@@ -1,3 +1,7 @@
+/** @file Allocator.h
+ * @brief Contains an implementation of a heap memory allocator
+ */
+
 // ------------------------------
 // projects/allocator/Allocator.h
 // Copyright (C) 2015
