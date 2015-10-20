@@ -309,6 +309,15 @@ class Allocator
         FRIEND_TEST(TestAllocate, allocate_5);
         FRIEND_TEST(TestAllocate, allocate_6);
         FRIEND_TEST(TestAllocate, allocate_7);
+        
+        FRIEND_TEST(TestAllocator2, deallocate_null_alloc);
+        FRIEND_TEST(TestAllocator2, deallocate_small_invalid_pointer);
+        FRIEND_TEST(TestAllocator2, deallocate_large_invalid_pointer);
+        FRIEND_TEST(TestAllocator2, deallocate);
+        FRIEND_TEST(TestAllocator2, deallocate_right_coalesce);
+        FRIEND_TEST(TestAllocator2, deallocate_left_right_coalesce);
+        FRIEND_TEST(TestAllocator2, deallocate_left_coalesce);
+
         /**
          * O(1) in space
          * O(n) in time

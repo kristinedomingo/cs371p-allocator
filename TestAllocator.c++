@@ -105,15 +105,15 @@ TYPED_TEST(TestAllocator1, test_10)
 }
 
 // --------------
-// TestAllocator2
+// Index operator
 // --------------
 
 /**
  * Tests const indexing operator
- * @param TestAllocator2 a fixture
+ * @param TestIndexOperator a fixture
  * @param const_index test name
  */
-TEST(TestAllocator2, const_index)
+TEST(TestIndexOperator, const_index)
 {
     const Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
@@ -121,10 +121,10 @@ TEST(TestAllocator2, const_index)
 
 /**
  * Tests indexing operator
- * @param TestAllocator2 a fixture
+ * @param TestIndexOperator a fixture
  * @param index_1 test name
  */
-TEST(TestAllocator2, index_1)
+TEST(TestIndexOperator, index_1)
 {
     Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
@@ -132,21 +132,25 @@ TEST(TestAllocator2, index_1)
 
 /**
  * Tests indexing operator
- * @param TestAllocator2 a fixture
+ * @param TestIndexOperator a fixture
  * @param index2 test name
  */
-TEST(TestAllocator2, index_2)
+TEST(TestIndexOperator, index_2)
 {
     Allocator<int, 12> x;
     ASSERT_EQ(x[0], 4);
 }
 
+// -----------
+// Constructor
+// -----------
+
 /**
  * Tests that constructor throws bad_alloc
- * @param TestAllocator2 a fixture
+ * @param TestConstructor a fixture
  * @param exception_is_thrown_1 test name
  */
-TEST(TestAllocator2, exception_is_thrown_1)
+TEST(TestConstructor, exception_is_thrown_1)
 {
     bool exception_thrown = false;
     try
@@ -162,10 +166,10 @@ TEST(TestAllocator2, exception_is_thrown_1)
 
 /**
  * Tests that constructor throws bad_alloc
- * @param TestAllocator2 a fixture
+ * @param TestConstructor a fixture
  * @param exception_is_thrown2 test name
  */
-TEST(TestAllocator2, exception_is_thrown2)
+TEST(TestConstructor, exception_is_thrown2)
 {
     bool exception_thrown = false;
     try
@@ -181,10 +185,10 @@ TEST(TestAllocator2, exception_is_thrown2)
 
 /**
  * Tests that constructor throws bad_alloc
- * @param TestAllocator2 a fixture
+ * @param TestConstructor a fixture
  * @param exception_is_thrown3 test name
  */
-TEST(TestAllocator2, exception_is_thrown3)
+TEST(TestConstructor, exception_is_thrown3)
 {
     bool exception_thrown = false;
     try
@@ -198,12 +202,16 @@ TEST(TestAllocator2, exception_is_thrown3)
     ASSERT_TRUE(exception_thrown);
 }
 
+// ----------------------
+// bytes_to_next_sentinel
+// ----------------------
+
 /**
  * Tests that helper function moves to index of next sentinel
- * @param TestAllocator2 a fixture
+ * @param TestBytesToNextSentinel a fixture
  * @param bytes_to_next_sentinel_1 test name
  */
-TEST(TestAllocator2, bytes_to_next_sentinel_1)
+TEST(TestBytesToNextSentinel, bytes_to_next_sentinel_1)
 {
     Allocator <int, 100> a;
     ASSERT_EQ (a.bytes_to_next_sentinel(92), 96);
@@ -211,21 +219,25 @@ TEST(TestAllocator2, bytes_to_next_sentinel_1)
 
 /**
  * Tests that helper function moves to index of next sentinel
- * @param TestAllocator2 a fixture
+ * @param TestBytesToNextSentinel a fixture
  * @param bytes_to_next_sentinel_2 test name
  */
-TEST(TestAllocator2, bytes_to_next_sentinel_2)
+TEST(TestBytesToNextSentinel, bytes_to_next_sentinel_2)
 {
     Allocator <int, 100> a;
     ASSERT_EQ (a.bytes_to_next_sentinel(-92), 96);
 }
 
+// --------
+// allocate
+// --------
+
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_1)
+TEST(TestAllocate, allocate_1)
 {
     Allocator<int, 50> x;
     const size_t s = 1;
@@ -239,10 +251,10 @@ TEST(TestAllocator2, allocate_1)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_2)
+TEST(TestAllocate, allocate_2)
 {
     Allocator<double, 100> x;
     const size_t s = 4;
@@ -256,10 +268,10 @@ TEST(TestAllocator2, allocate_2)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_3)
+TEST(TestAllocate, allocate_3)
 {
     Allocator<int, 100> x;
     ASSERT_EQ(x[0], 92);
@@ -284,10 +296,10 @@ TEST(TestAllocator2, allocate_3)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_1 test name
  */
-TEST(TestAllocator2, allocate_4)
+TEST(TestAllocate, allocate_4)
 {
     bool exception_thrown = false;
     Allocator<double, 100> x;
@@ -306,10 +318,10 @@ TEST(TestAllocator2, allocate_4)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_5 test name
  */
-TEST(TestAllocator2, allocate_5)
+TEST(TestAllocate, allocate_5)
 {
     Allocator<int, 24> x;
     const size_t s = 1;
@@ -323,10 +335,10 @@ TEST(TestAllocator2, allocate_5)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_6 test name
  */
-TEST(TestAllocator2, allocate_6)
+TEST(TestAllocate, allocate_6)
 {
     Allocator<int, 24> x;
     const size_t s = 1;
@@ -346,10 +358,10 @@ TEST(TestAllocator2, allocate_6)
 
 /**
  * Tests allocate
- * @param TestAllocator2 a fixture
+ * @param TestAllocate a fixture
  * @param allocate_7 test name
  */
-TEST(TestAllocator2, allocate_7)
+TEST(TestAllocate, allocate_7)
 {
     Allocator<int, 20> x;
     const size_t s = 1;
@@ -370,12 +382,16 @@ TEST(TestAllocator2, allocate_7)
     ASSERT_TRUE(exception_thrown);
 }
 
+// ----------
+// deallocate
+// ----------
+
 /**
- * Tests deallocate
- * @param TestAllocator2 a fixture
+ * Tests deallocate (deallocating more than once)
+ * @param TestDeallocate a fixture
  * @param deallocate_1 test name
  */
-TEST(TestAllocator2, deallocate_1)
+TEST(TestDeallocate, deallocate_1)
 {
     Allocator<int, 100> x;
     const size_t s = 1;
@@ -390,11 +406,11 @@ TEST(TestAllocator2, deallocate_1)
 }
 
 /**
- * Tests deallocate
- * @param TestAllocator2 a fixture
+ * Tests deallocate (deallocating once)
+ * @param TestDeallocate a fixture
  * @param deallocate_1 test name
  */
-TEST(TestAllocator2, deallocate_2)
+TEST(TestDeallocate, deallocate_2)
 {
     Allocator<int, 100> x;
     const size_t s = 1;
@@ -406,6 +422,134 @@ TEST(TestAllocator2, deallocate_2)
     ASSERT_EQ(x[96], 92);
 }
 
+/**
+ * Tests deallocate (deallocating the middle block)
+ * @param TestDeallocate a fixture
+ * @param deallocate_3 test name
+ */
+TEST(TestDeallocate, deallocate_3)
+{
+    Allocator<int, 100> x;
+    const size_t s = 4;
+    int* p = x.allocate(s);
+
+    const size_t s2 = 2;
+    int* p2 = x.allocate(s2);
+
+    const size_t s3 = 13;
+    int* p3 = x.allocate(s3);
+
+    x.deallocate(p2, s2);
+    ASSERT_EQ(x[0], -16);
+    ASSERT_EQ(x[20], -16);
+    ASSERT_EQ(x[24], 8);
+    ASSERT_EQ(x[36], 8);
+    ASSERT_EQ(x[40], -52);
+    ASSERT_EQ(x[96], -52);
+
+    x.deallocate(p, s);
+    x.deallocate(p3, s3);
+    ASSERT_EQ(x[0], 92);
+    ASSERT_EQ(x[96], 92);
+}
+
+/**
+ * Tests deallocate (deallocating with an invalid pointer)
+ * @param TestDeallocate a fixture
+ * @param deallocate_4 test name
+ */
+TEST(TestDeallocate, deallocate_4)
+{
+    Allocator<int, 100> x;
+    const size_t s = 4;
+    x.allocate(s);
+
+    int* p2 = x.allocate(s);
+
+    bool exception_thrown = false;
+    try
+    {
+        x.deallocate(p2 - 1, s);
+    }
+    catch(std::invalid_argument &e)
+    {
+        exception_thrown = true;
+    }
+    ASSERT_TRUE(exception_thrown);
+}
+
+/**
+ * Tests deallocate (a lot of allocation and deallocation)
+ * @param TestDeallocate a fixture
+ * @param deallocate_5 test name
+ */
+TEST(TestDeallocate, deallocate_5)
+{
+    Allocator<int, 100> x;
+    const size_t s = 1;
+    int *p1 = x.allocate(s);
+    int *p2 = x.allocate(s);
+    int *p3 = x.allocate(s);
+    int *p4 = x.allocate(s);
+    int *p5 = x.allocate(s);
+    int *p6 = x.allocate(s);
+    int *p7 = x.allocate(s);
+    int *p8 = x.allocate(s);
+
+    x.deallocate(p1, s);
+    x.deallocate(p2, s);
+    x.deallocate(p3, s);
+    x.deallocate(p4, s);
+    x.deallocate(p5, s);
+    x.deallocate(p6, s);
+    x.deallocate(p7, s);
+    x.deallocate(p8, s);
+
+    ASSERT_EQ(x[0], 92);
+    ASSERT_EQ(x[96], 92);
+}
+
+// --------------
+// struct used for testing allocator
+// --------------
+struct test_struct
+{
+    int a;
+    double b;
+};
+
+/**
+ * Tests deallocate (structs as T)
+ * @param TestDeallocate a fixture
+ * @param deallocate_6 test name
+ */
+TEST(TestDeallocate, deallocate_6)
+{
+    Allocator<test_struct, 200> x;
+    const size_t s1 = 3;
+    const size_t s2 = 1;
+    
+    ASSERT_EQ(x[0], 192);
+    ASSERT_EQ(x[196], 192);
+
+    test_struct* p1 = x.allocate(s1);
+    test_struct* p2 = x.allocate(s2);
+
+    ASSERT_EQ(x[0], -48);
+    ASSERT_EQ(x[52], -48);
+    ASSERT_EQ(x[56], -16);
+    ASSERT_EQ(x[76], -16);
+    ASSERT_EQ(x[80], 112);
+    ASSERT_EQ(x[196], 112);
+
+    x.deallocate(p2, s2);
+    ASSERT_EQ(x[56], 136);
+    ASSERT_EQ(x[196], 136);
+
+    x.deallocate(p1, s1);
+    ASSERT_EQ(x[0], 192);
+    ASSERT_EQ(x[196], 192);
+}
 
 // --------------
 // TestAllocator3
