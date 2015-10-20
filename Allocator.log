@@ -1,0 +1,119 @@
+commit f2a2c2def4f7481ef47f6754852d59bae080456b
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Tue Oct 20 17:00:08 2015 -0500
+
+    Add Doxygen documentation, closes #13, closes #8
+
+commit f1dcdac0b798abb1e2146ee1602e581b8213a23f
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Tue Oct 20 16:35:35 2015 -0500
+
+    Clean up code, Closes #14, Closes #15
+
+commit 755d85b1ce632d81e000a7487d2f86bbeb8370a9
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Tue Oct 20 16:13:32 2015 -0500
+
+    Closes #7
+
+commit 79d54fe818b328a9e32860c3d0c2c35f47635c40
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Mon Oct 19 22:31:00 2015 -0500
+
+    Finished(?) implementation of Allocator (close #5, close #7)
+
+commit 2b2a69ef1efcaa3a2ff90f6ff4f49793b510c412
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Mon Oct 19 20:47:52 2015 -0500
+
+    Fixed bug calculating last_valid_location
+
+commit 5a32342241e3845f519030510d9db9a5fb7cfefe
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Mon Oct 19 12:45:40 2015 -0500
+
+    Fixed bug, was calculating end of array wrong
+
+commit bae10132858f1519deef1c35770aed5c1d310d59
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Mon Oct 19 11:59:09 2015 -0500
+
+    Fixed bug in valid, added 2 unit tests for deallocate
+
+commit bb509951cb54b18dbc22cd3ba5c72dca265af748
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Sun Oct 18 22:54:53 2015 -0500
+
+    Added documentation (and forgot to close #2, close #1, and close #3)
+
+commit 858ea0a8947562a44d456eeea4c03ad09c9f48bf
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Sun Oct 18 18:26:44 2015 -0500
+
+    Some work on deallocate
+
+commit 3b9db484b6c3db2d95a62a94f2c8658d14670476
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Sun Oct 18 16:01:47 2015 -0500
+
+    More unit tests
+
+commit 283dba522459257cf41b62481e2195dbfd255e08
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Sun Oct 18 15:56:58 2015 -0500
+
+    Added more unit tests
+
+commit 735b5dc0eae2eaca3fc13803196143f5f65ce3a8
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Sun Oct 18 15:21:19 2015 -0500
+
+    Fixed bug w/ accessing char array
+
+commit ee8f5e1581aa00a4503fb5aa0df603ac0f71ba8c
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Sat Oct 17 17:41:22 2015 -0500
+
+    Add unit test for allocate
+
+commit d40bed8e1d37b850543dd2d6f7ce74064059a00a
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Sat Oct 17 16:27:21 2015 -0500
+
+    Work on allocate() and add tests for it
+
+commit 879b6d0f9c832851fc424212a72bfa0748935490
+Author: kelseymorris95 <kelseymorris95@gmail.com>
+Date:   Sat Oct 17 14:07:19 2015 -0500
+
+    Fix bug in valid()
+
+commit feb4f2f550e222662822fb20a8134846be3c9814
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Fri Oct 16 12:53:51 2015 -0500
+
+    Added unit tests for constructor
+
+commit fa0948a5d8fd40e04d27e06ef48edfaaf77408b9
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Fri Oct 16 12:53:37 2015 -0500
+
+    Implemented valid and constructor
+
+commit 595bd305a924bd1b015a0c9c6687540179d98030
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Thu Oct 15 16:53:19 2015 -0500
+
+    Added build files.
+
+commit 5998063e09b9e01f26a6e03d11b0b3c9410a6a42
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Thu Oct 15 16:43:50 2015 -0500
+
+    Changed bracket style.
+
+commit a58358df4d9430baeb46222dae3c7733c2e844e6
+Author: Kristine Domingo <kristine@cs.utexas.edu>
+Date:   Thu Oct 15 16:35:59 2015 -0500
+
+    Initial commit of files.
