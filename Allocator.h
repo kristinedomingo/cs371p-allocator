@@ -406,22 +406,26 @@ class Allocator
          */
         FRIEND_TEST(TestAllocator2, deallocate_1);
         FRIEND_TEST(TestAllocator2, deallocate_2);
+        FRIEND_TEST(TestAllocator2, deallocate_3);
+        FRIEND_TEST(TestAllocator2, deallocate_4);
+        FRIEND_TEST(TestAllocator2, deallocate_5);
+        FRIEND_TEST(TestAllocator2, deallocate_6);
+        FRIEND_TEST(TestAllocator2, deallocate_7);
         void deallocate (pointer p, size_type)
         {
+            // Get the value of the sentinel of the block that p is pointing to
             int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
             int sentinel_value = *(sentinel_pointer);
             std::cout << "Initial sentinel value is " << sentinel_value << std::endl;
 
+            // Find the beginning and end of a
             int* beginning_of_a = reinterpret_cast<int*>(&a);
             int* end_of_a = reinterpret_cast<int*>(&a[sizeof(a) / sizeof(a[0])]);
 
-            char* last_valid_location = reinterpret_cast<char*>(end_of_a - (2 * sizeof(int)) - sizeof(T));
-            if(sentinel_value > 0 ||
-               reinterpret_cast<int*>(p) < beginning_of_a ||
-               reinterpret_cast<char*>(p) > last_valid_location)
-            {
-                throw std::invalid_argument("Invalid p pointer");
-            }
+            // Find the last valid location that a sentinel can be at
+            char* end_minus_block = reinterpret_cast<char*>(end_of_a) - 
+                                        (2 * sizeof(int) - sizeof(T));
+            int* last_valid_location = reinterpret_cast<int*>(end_minus_block);
 
             // Make sentinel_value positive
             if(sentinel_value < 0)
@@ -439,14 +443,31 @@ class Allocator
                                   sentinel_value + sizeof(int);
             int* end_sentinel = reinterpret_cast<int*>(second_reader);
 
+            // Check for validity before you begin actual deallocation
+            if(*(end_sentinel) > 0 ||
+               (*(end_sentinel) * -1) != sentinel_value ||
+               reinterpret_cast<int*>(p) < beginning_of_a ||
+               reinterpret_cast<int*>(p) > last_valid_location)
+            {
+                std::cout << "end sentinel value * -1 is: " << (*(end_sentinel) * -1) << std::endl;
+                std::cout << "sentinel value is: " << sentinel_value << std::endl;
+                std::cout << "reinterpret_cast int p is: " << reinterpret_cast<int*>(p) << std::endl;
+                std::cout << "beg of a is: " << beginning_of_a << std::endl;
+                std::cout << "reinterpret_cast char p is: " << reinterpret_cast<int*>(p) << std::endl;
+                std::cout << "last valid loc is: " << last_valid_location << std::endl;
+                
+                throw std::invalid_argument("Invalid p pointer");
+            }
+
             // Check for free blocks BEFORE this block
             if(first_sentinel - 1 > beginning_of_a)
             {
-                std::cout << "Coalescing before block" << std::endl;
                 // Check if previous block is free
                 int previous_sentinel_value = *(reader - 4);
                 if(previous_sentinel_value > 0)
                 {
+
+                    std::cout << "Coalescing before block" << std::endl;
                     // Set the first_sentinel to the previous block's first sentinel
                     first_sentinel = reinterpret_cast<int*>(reader - previous_sentinel_value - (2 * sizeof(int)));
 
