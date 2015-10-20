@@ -77,8 +77,8 @@ class Allocator
          * @param current_sentinel an integer representing a sentinel value
          * @return a size_t of |current_sentinel| + 4
          */
-        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_1);
-        FRIEND_TEST(TestAllocator2, bytes_to_next_sentinel_2);
+        FRIEND_TEST(TestBytesToNextSentinel, bytes_to_next_sentinel_1);
+        FRIEND_TEST(TestBytesToNextSentinel, bytes_to_next_sentinel_2);
         size_t bytes_to_next_sentinel (int current_sentinel) const 
         {
             if (current_sentinel < 0)
@@ -188,8 +188,8 @@ class Allocator
          * https://code.google.com/p/googletest/wiki/
          *     AdvancedGuide#Private_Class_Members
          */
-        FRIEND_TEST(TestAllocator2, index_1); 
-        FRIEND_TEST(TestAllocator2, index_2);
+        FRIEND_TEST(TestIndexOperator, index_1); 
+        FRIEND_TEST(TestIndexOperator, index_2);
         int& operator [] (int i)
         {
             return *reinterpret_cast<int*>(&a[i]);
@@ -206,11 +206,8 @@ class Allocator
          * @param n the number of Ts to allocate
          */
         pointer allocate_if_possible(size_t bytes_read, int current_sentinel, 
-                                     int bytes_needed, size_t n){
-            std::cout << "bytes needed: " << bytes_needed << std::endl;
-            std::cout << "current sent: " << current_sentinel << std::endl;
-            std::cout << "bytes read: " << bytes_read << std::endl;
-            
+                                     int bytes_needed, size_t n)
+        {            
             // If there is enough space in this block, allocate:
             if (current_sentinel >= bytes_needed && current_sentinel > 0)
             {
@@ -218,9 +215,6 @@ class Allocator
                 // n Ts have been allocated
                 int remaining_space = current_sentinel + (2 * sizeof(int)) - 
                                       ((2 * sizeof(int)) + (n * sizeof(T)));
-               
-                std::cout << "remaining space: " << remaining_space << std::endl;
-                std::cout << "needed space: " << (2 * sizeof(int) + sizeof(T)) << std::endl;
 
                 // If there is enough space to allocate n Ts AND another block
                 // that is AT LEAST bigger than the "smallest allowable block",
@@ -234,31 +228,19 @@ class Allocator
                     // Modify first sentinel to new value
                     (*this)[bytes_read - sizeof(int)] = bytes_needed * -1;
 
-                    std::cout << "first sent, first group: " << bytes_needed * -1;
-                    std::cout << std::endl;
-
                     // Go to second sentinel
                     bytes_read += bytes_needed;
-                    
-                    std::cout << "bytes read: " << bytes_read << std::endl;
                     
                     // Create an end sentinel
                     (*this)[bytes_read] = bytes_needed * -1;
                     // Go to first in second group of sentinels
                     bytes_read += 4;
                     
-                    std::cout << "bytes read: " << bytes_read << std::endl;
-                    
                     // Create first sentinel in second group
                     (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
                     
-                    std::cout << "first sent, second group: " << remaining_space - 2 * sizeof(int);
-                    std::cout << std::endl;
-                    
                     // Create second sentinel in second group
                     bytes_read += remaining_space - 4;
-                    
-                    std::cout << "bytes read: " << bytes_read << std::endl;
                     
                     (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
                     assert(valid());
@@ -320,13 +302,13 @@ class Allocator
         // allocate
         // --------
 
-        FRIEND_TEST(TestAllocator2, allocate_1);
-        FRIEND_TEST(TestAllocator2, allocate_2);
-        FRIEND_TEST(TestAllocator2, allocate_3);
-        FRIEND_TEST(TestAllocator2, allocate_4);
-        FRIEND_TEST(TestAllocator2, allocate_5);
-        FRIEND_TEST(TestAllocator2, allocate_6);
-        FRIEND_TEST(TestAllocator2, allocate_7);
+        FRIEND_TEST(TestAllocate, allocate_1);
+        FRIEND_TEST(TestAllocate, allocate_2);
+        FRIEND_TEST(TestAllocate, allocate_3);
+        FRIEND_TEST(TestAllocate, allocate_4);
+        FRIEND_TEST(TestAllocate, allocate_5);
+        FRIEND_TEST(TestAllocate, allocate_6);
+        FRIEND_TEST(TestAllocate, allocate_7);
         /**
          * O(1) in space
          * O(n) in time
@@ -338,7 +320,6 @@ class Allocator
         pointer allocate (const size_type& n)
         {
             assert (n > 0);
-            std::cout << "=================== BEGIN ALLOCATE() RUN =================" << std::endl;
 
             // Check if n Ts can be allocated in the first block
             size_t bytes_read = 0;
@@ -404,15 +385,21 @@ class Allocator
          * throw an invalid_argument exception, if p is invalid
          * <your documentation>
          */
-        FRIEND_TEST(TestAllocator2, deallocate_1);
-        FRIEND_TEST(TestAllocator2, deallocate_2);
-        FRIEND_TEST(TestAllocator2, deallocate_3);
-        FRIEND_TEST(TestAllocator2, deallocate_4);
-        FRIEND_TEST(TestAllocator2, deallocate_5);
-        FRIEND_TEST(TestAllocator2, deallocate_6);
-        FRIEND_TEST(TestAllocator2, deallocate_7);
+        FRIEND_TEST(TestDeallocate, deallocate_1);
+        FRIEND_TEST(TestDeallocate, deallocate_2);
+        FRIEND_TEST(TestDeallocate, deallocate_3);
+        FRIEND_TEST(TestDeallocate, deallocate_4);
+        FRIEND_TEST(TestDeallocate, deallocate_5);
+        FRIEND_TEST(TestDeallocate, deallocate_6);
+        FRIEND_TEST(TestDeallocate, deallocate_7);
+        FRIEND_TEST(TestDeallocate, inavlid_argument);
         void deallocate (pointer p, size_type)
         {
+            if(p == 0)
+            {
+                throw std::invalid_argument("Invalid p pointer");
+            }
+
             // Get the value of the sentinel of the block that p is pointing to
             int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
             int sentinel_value = *(sentinel_pointer);
@@ -444,18 +431,12 @@ class Allocator
             int* end_sentinel = reinterpret_cast<int*>(second_reader);
 
             // Check for validity before you begin actual deallocation
+            std::cout << "==== GET HERE? ====" << std::endl;
             if(*(end_sentinel) > 0 ||
                (*(end_sentinel) * -1) != sentinel_value ||
                reinterpret_cast<int*>(p) < beginning_of_a ||
                reinterpret_cast<int*>(p) > last_valid_location)
             {
-                std::cout << "end sentinel value * -1 is: " << (*(end_sentinel) * -1) << std::endl;
-                std::cout << "sentinel value is: " << sentinel_value << std::endl;
-                std::cout << "reinterpret_cast int p is: " << reinterpret_cast<int*>(p) << std::endl;
-                std::cout << "beg of a is: " << beginning_of_a << std::endl;
-                std::cout << "reinterpret_cast char p is: " << reinterpret_cast<int*>(p) << std::endl;
-                std::cout << "last valid loc is: " << last_valid_location << std::endl;
-                
                 throw std::invalid_argument("Invalid p pointer");
             }
 
@@ -463,7 +444,7 @@ class Allocator
             if(first_sentinel - 1 > beginning_of_a)
             {
                 // Check if previous block is free
-                int previous_sentinel_value = *(reader - 4);
+                int previous_sentinel_value = *(reinterpret_cast<int*>(reader - sizeof(int)));
                 if(previous_sentinel_value > 0)
                 {
 
@@ -480,14 +461,11 @@ class Allocator
             // Check for free blocks AFTER this block
             if(end_sentinel + 1 < end_of_a)
             {
-                std::cout << "end sentinel is " << end_sentinel << std::endl;
-                std::cout << "end sentinel + 1 is " << end_sentinel + 1 << std::endl;
-                std::cout << "end of a is " << end_of_a << std::endl;
                 std::cout << "checking for free blocks after this block:" << std::endl;
                 // Check if next block is free
                 std::cout << "===== FIRST SENTINEL VALUE: " << *(first_sentinel) << std::endl;
                 std::cout << "===== SECOND SENTINEL VALUE: " << *(end_sentinel) << std::endl;
-                int next_sentinel_value = *(second_reader + 4);
+                int next_sentinel_value = *(reinterpret_cast<int*>(second_reader + sizeof(int)));
                 std::cout << "Next sentinel value: " << next_sentinel_value << std::endl;
 
                 if(next_sentinel_value > 0)
