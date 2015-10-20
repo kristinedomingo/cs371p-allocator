@@ -207,7 +207,7 @@ TEST(TestConstructor, exception_is_thrown3)
 // ----------------------
 
 /**
- * Tests that helper function moves to index of next sentinel
+ * Tests helper function that moves to index of next sentinel
  * @param TestBytesToNextSentinel a fixture
  * @param bytes_to_next_sentinel_1 test name
  */

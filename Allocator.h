@@ -70,6 +70,8 @@ class Allocator
         // ----------------------
 
         /**
+         * O(1) in space
+         * O(1) in time
          * A helper function for valid() and allocate(). Returns the absolute
          * value of current_sentinel plus the size of an integer (4), which is
          * used to move an index from a beginning sentinel of a block to the
@@ -95,27 +97,24 @@ class Allocator
         /**
          * O(1) in space
          * O(n) in time
-         * <your documentation>
+         * Class invariant used to check whether a given Allocator is in a valid
+         * state after construction or a call to allocate or deallocate.
+         * Checks that sentinel pairs match, there are not uncoalesced blocks.
          * @return a bool value representing whether or not a[] is a valid heap
          */
         bool valid () const
         {
-            std::cout << "\n\n=================== BEGIN VALID() RUN =================" << std::endl;
 
             // To avoid dealing with checking the validity of the first pair
-            // of sentinels (a special case) check the first one outside
+            // of sentinels (a special case) check the first pair outside
             // of the while loop, and then check the rest of sentinel pairs.
             size_t bytes_read = 0;
             bool last_was_pos = (*this)[0] > 0 ? true : false;
             int current_sentinel = (*this)[0];
 
-            std::cout << "Sentinel 1: " << current_sentinel << std::endl;
-            std::cout << "Bytes read: " << bytes_read << std::endl;
-
             // Sentinels cannot be 0
             if (current_sentinel == 0)
             {
-                std::cout << "========== CURRENT SENTINEL IS 0 ==========" << std::endl;
                 return false;
             }
             
@@ -125,11 +124,8 @@ class Allocator
             // If sentinel pairs do not match, return false
             if ((*this)[bytes_read] != current_sentinel)
             {
-                std::cout << "Sentinels did not match, second sentinel: " << (*this)[bytes_read] << std::endl;
-                std::cout << "Bytes read: " << bytes_read << std::endl;
                 return false;
             }
-            std::cout << "Bytes read: " << bytes_read << std::endl;
 
             // Increment bytes_read to the next sentinel
             bytes_read += sizeof(int);
@@ -139,9 +135,6 @@ class Allocator
             {
                 current_sentinel = (*this)[bytes_read];
             
-                std::cout << "Sentinel next: " << current_sentinel << std::endl;
-                std::cout << "Bytes read: " << bytes_read << std::endl;
-                
                 // Sentinels cannot be 0
                 if (current_sentinel == 0)
                 {
@@ -151,7 +144,6 @@ class Allocator
                 // There cannot be two free blocks beside each other
                 if (last_was_pos && current_sentinel > 0)
                 {
-                    std::cout << "====== TWO FREE BLOCKS BY EACH OTHER =====" << std::endl;
                     return false;
                 }
 
@@ -164,16 +156,12 @@ class Allocator
                 // If sentinel pairs do not match, return false
                 if ((*this)[bytes_read] != current_sentinel)
                 {
-                    std::cout << "Sentinels did not match, second sentinel: " << (*this)[bytes_read] << std::endl;
-                    std::cout << "Bytes read: " << bytes_read << std::endl;
                     return false;
                 }
-                std::cout << "Bytes read: " << bytes_read << std::endl;
 
                 // Increments bytes_read to the next sentinel
                 bytes_read += sizeof(int);
             }
-            std::cout << std::endl << std::endl;
             return true;
         }
 
@@ -184,7 +172,8 @@ class Allocator
         /**
          * O(1) in space
          * O(1) in time
-         * <your documentation>
+         * Read a sentinel from a[], cast value to an int as a[] is a char
+         * array, and dereference it
          * https://code.google.com/p/googletest/wiki/
          *     AdvancedGuide#Private_Class_Members
          */
@@ -222,7 +211,7 @@ class Allocator
                 if (remaining_space >= (2 * sizeof(int) + sizeof(T)))
                 {
                     // Create pointer to beginning of allocated space
-                    bytes_read += 4;
+                    bytes_read += sizeof(int);
                     pointer p = reinterpret_cast<pointer>(&a[bytes_read]);
 
                     // Modify first sentinel to new value
@@ -233,16 +222,18 @@ class Allocator
                     
                     // Create an end sentinel
                     (*this)[bytes_read] = bytes_needed * -1;
+                   
                     // Go to first in second group of sentinels
-                    bytes_read += 4;
+                    bytes_read += sizeof(int);
                     
                     // Create first sentinel in second group
                     (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
                     
                     // Create second sentinel in second group
-                    bytes_read += remaining_space - 4;
+                    bytes_read += remaining_space - sizeof(int);
                     
                     (*this)[bytes_read] = remaining_space - 2 * sizeof(int);
+                    
                     assert(valid());
                     return p;
                 }
@@ -250,7 +241,7 @@ class Allocator
                 // just fill in this block
                 else
                 {
-                    pointer p = reinterpret_cast<pointer>(&a[bytes_read + 4]);
+                    pointer p = reinterpret_cast<pointer>(&a[bytes_read + sizeof(int)]);
 
                     // Mark current pair of sentinels as "used"
                     (*this)[bytes_read] *= -1;
@@ -309,22 +300,15 @@ class Allocator
         FRIEND_TEST(TestAllocate, allocate_5);
         FRIEND_TEST(TestAllocate, allocate_6);
         FRIEND_TEST(TestAllocate, allocate_7);
-        
-        FRIEND_TEST(TestAllocator2, deallocate_null_alloc);
-        FRIEND_TEST(TestAllocator2, deallocate_small_invalid_pointer);
-        FRIEND_TEST(TestAllocator2, deallocate_large_invalid_pointer);
-        FRIEND_TEST(TestAllocator2, deallocate);
-        FRIEND_TEST(TestAllocator2, deallocate_right_coalesce);
-        FRIEND_TEST(TestAllocator2, deallocate_left_right_coalesce);
-        FRIEND_TEST(TestAllocator2, deallocate_left_coalesce);
 
         /**
          * O(1) in space
          * O(n) in time
-         * after allocation there must be enough space left for a valid block
+         * Allocates at least enough space for n T's when requested
+         * After allocation there must be enough space left for a valid block
          * the smallest allowable block is sizeof(T) + (2 * sizeof(int))
          * choose the first block that fits
-         * throw a bad_alloc exception, if n is invalid
+         * Throw a bad_alloc exception, if n is invalid
          */
         pointer allocate (const size_type& n)
         {
@@ -387,24 +371,25 @@ class Allocator
         // deallocate
         // ----------
 
-        /**
-         * O(1) in space
-         * O(1) in time
-         * after deallocation adjacent free blocks must be coalesced
-         * throw an invalid_argument exception, if p is invalid
-         * <your documentation>
-         */
         FRIEND_TEST(TestDeallocate, deallocate_1);
         FRIEND_TEST(TestDeallocate, deallocate_2);
         FRIEND_TEST(TestDeallocate, deallocate_3);
         FRIEND_TEST(TestDeallocate, deallocate_4);
         FRIEND_TEST(TestDeallocate, deallocate_5);
         FRIEND_TEST(TestDeallocate, deallocate_6);
-        FRIEND_TEST(TestDeallocate, deallocate_7);
-        FRIEND_TEST(TestDeallocate, inavlid_argument);
+        
+        /**
+         * O(1) in space
+         * O(1) in time
+         * Takes in pointer to previously allocated area,
+         * deallocates the area
+         * After deallocation adjacent free blocks must be coalesced
+         * throw an invalid_argument exception, if p is invalid
+         * 
+         */
         void deallocate (pointer p, size_type)
         {
-            if(p == 0)
+            if (p == 0)
             {
                 throw std::invalid_argument("Invalid p pointer");
             }
@@ -412,7 +397,6 @@ class Allocator
             // Get the value of the sentinel of the block that p is pointing to
             int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
             int sentinel_value = *(sentinel_pointer);
-            std::cout << "Initial sentinel value is " << sentinel_value << std::endl;
 
             // Find the beginning and end of a
             int* beginning_of_a = reinterpret_cast<int*>(&a);
@@ -427,7 +411,6 @@ class Allocator
             if(sentinel_value < 0)
             {
                 sentinel_value *= -1;
-                std::cout << "Positive sentinel value is " << sentinel_value << std::endl;
             }
 
             // Mark the "beginning sentinel" in this block
@@ -440,7 +423,6 @@ class Allocator
             int* end_sentinel = reinterpret_cast<int*>(second_reader);
 
             // Check for validity before you begin actual deallocation
-            std::cout << "==== GET HERE? ====" << std::endl;
             if(*(end_sentinel) > 0 ||
                (*(end_sentinel) * -1) != sentinel_value ||
                reinterpret_cast<int*>(p) < beginning_of_a ||
@@ -457,40 +439,30 @@ class Allocator
                 if(previous_sentinel_value > 0)
                 {
 
-                    std::cout << "Coalescing before block" << std::endl;
                     // Set the first_sentinel to the previous block's first sentinel
                     first_sentinel = reinterpret_cast<int*>(reader - previous_sentinel_value - (2 * sizeof(int)));
 
                     // Accumulate sentinel value
                     sentinel_value += previous_sentinel_value + (2 * sizeof(int));
-                    std::cout << "New sentinel value is " << sentinel_value << std::endl;
                 }
             }
 
             // Check for free blocks AFTER this block
             if(end_sentinel + 1 < end_of_a)
             {
-                std::cout << "checking for free blocks after this block:" << std::endl;
                 // Check if next block is free
-                std::cout << "===== FIRST SENTINEL VALUE: " << *(first_sentinel) << std::endl;
-                std::cout << "===== SECOND SENTINEL VALUE: " << *(end_sentinel) << std::endl;
                 int next_sentinel_value = *(reinterpret_cast<int*>(second_reader + sizeof(int)));
-                std::cout << "Next sentinel value: " << next_sentinel_value << std::endl;
 
                 if(next_sentinel_value > 0)
                 {
-                    std::cout << "Coalescing after block" << std::endl;
                     // Set the end_sentinel to the next block's end sentinel
                     end_sentinel = reinterpret_cast<int*>(second_reader + next_sentinel_value + (2 * sizeof(int)));
 
-                    std::cout << "==== VALUE OF END SENTINEL IS: " << *(end_sentinel) << std::endl;
                     // Accumulate sentinel value
                     sentinel_value += next_sentinel_value + (2 * sizeof(int));
-                    std::cout << "New sentinel value is " << sentinel_value << std::endl;
                 }
             }
 
-            std::cout << "===== FINAL SENTINEL VALUE IS: " << sentinel_value << std::endl;
 
             // Set the values of the new sentinels
             *(first_sentinel) = sentinel_value;
@@ -516,7 +488,10 @@ class Allocator
         /**
          * O(1) in space
          * O(1) in time
-         * <your documentation>
+         * Read a sentinel from a[], cast value to an int as a[] is a char
+         * array, and dereference it
+         * Returns a read only reference so it can be used safely as a public
+         * method
          */
         const int& operator [] (int i) const
         {
