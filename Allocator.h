@@ -61,8 +61,8 @@ class Allocator
         {
             return !(lhs == rhs);
         }
-    public:
-    //private:
+    
+    private:
         // ----
         // data
         // ----
