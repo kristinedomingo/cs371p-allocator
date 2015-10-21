@@ -57,8 +57,8 @@ class Allocator
         {
             return !(lhs == rhs);
         }
-
-    private:
+    public:
+    //private:
         // ----
         // data
         // ----
@@ -312,7 +312,15 @@ class Allocator
          */
         pointer allocate (const size_type& n)
         {
-            assert (n > 0);
+            if ((n * sizeof(T)) > N)
+            {
+                std::bad_alloc e;
+                throw e;
+            }
+            if (n == 0)
+            {
+                return nullptr;
+            }
 
             // Check if n Ts can be allocated in the first block
             size_t bytes_read = 0;
@@ -397,22 +405,30 @@ class Allocator
             // Get the value of the sentinel of the block that p is pointing to
             int* sentinel_pointer = reinterpret_cast<int*>(p) - 1;
             int sentinel_value = *(sentinel_pointer);
-
+            
             // Find the beginning and end of a
             int* beginning_of_a = reinterpret_cast<int*>(&a);
             int* end_of_a = reinterpret_cast<int*>(&a[sizeof(a) / sizeof(a[0])]);
-
+            
             // Find the last valid location that a sentinel can be at
             char* end_minus_block = reinterpret_cast<char*>(end_of_a) - 
                                         (2 * sizeof(int) - sizeof(T));
             int* last_valid_location = reinterpret_cast<int*>(end_minus_block);
-
+            
+            // Check for validity before you begin actual deallocation
+            if(sentinel_value > 0 ||
+               reinterpret_cast<int*>(p) < beginning_of_a ||
+               reinterpret_cast<int*>(p) > last_valid_location)
+            {
+                throw std::invalid_argument("Invalid p pointer");
+            }
+            
             // Make sentinel_value positive
             if(sentinel_value < 0)
             {
                 sentinel_value *= -1;
             }
-
+            
             // Mark the "beginning sentinel" in this block
             int* first_sentinel = sentinel_pointer;
             char* reader = reinterpret_cast<char*>(first_sentinel);
@@ -421,16 +437,12 @@ class Allocator
             char* second_reader = reinterpret_cast<char*>(first_sentinel) +
                                   sentinel_value + sizeof(int);
             int* end_sentinel = reinterpret_cast<int*>(second_reader);
-
-            // Check for validity before you begin actual deallocation
-            if(*(end_sentinel) > 0 ||
-               (*(end_sentinel) * -1) != sentinel_value ||
-               reinterpret_cast<int*>(p) < beginning_of_a ||
-               reinterpret_cast<int*>(p) > last_valid_location)
+            
+            if (*(end_sentinel) > 0 || (*(end_sentinel) * -1 != sentinel_value))
             {
                 throw std::invalid_argument("Invalid p pointer");
             }
-
+            
             // Check for free blocks BEFORE this block
             if(first_sentinel - 1 > beginning_of_a)
             {
@@ -446,7 +458,7 @@ class Allocator
                     sentinel_value += previous_sentinel_value + (2 * sizeof(int));
                 }
             }
-
+            
             // Check for free blocks AFTER this block
             if(end_sentinel + 1 < end_of_a)
             {
